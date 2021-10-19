@@ -6,8 +6,8 @@ import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("port", type=int)
-parser.add_argument("telemetry", type=int, default=0)
-parser.add_argument("blacklist_file", type=str, default="")
+parser.add_argument("-t", "--telemetry", type=int, default=0, choices=[0, 1])
+parser.add_argument("-b", "--blacklist_file", type=str)
 
 port = parser.parse_args().port
 telemetry = parser.parse_args().telemetry
@@ -15,6 +15,7 @@ blacklist_file = parser.parse_args().blacklist_file
 
 recv_buffer_size = 4096
 max_threads = 8
+time_out = 5
 
 
 def ClientHandler(client_sock: socket, request_address: (str, int), http_version: str):
@@ -29,7 +30,7 @@ def ClientHandler(client_sock: socket, request_address: (str, int), http_version
     while not transmission_done:
         # Use select to monitor IO (Time out 5s to close the connect + print stat when transmission stops for 5s)
         read_list, write_list, exception_list = select.select([client_sock, server_sock], [],
-                                                              [client_sock, server_sock], 5)
+                                                              [client_sock, server_sock], time_out)
         # When there are exceptions or there are nothing to read from
         if len(exception_list) > 0 or len(read_list) == 0:
             break
@@ -79,7 +80,7 @@ def main():
         # Check HTTP Request format
         http_version = dataList[0][-4:-1].decode()
         for dataLine in dataList[:-1]:
-            print(dataLine[-1:])
+            # print(dataLine[-1:])
             if dataLine[-1:] != b"\r":
                 client_sock.sendall(f"HTTP/{http_version} 400 Bad Request \r\n\r\n".encode())
                 client_sock.close()
@@ -100,7 +101,7 @@ def main():
             # print(http_version)
             if blacklisted:
                 client_sock.sendall(f"HTTP/{http_version} 403 Forbidden \r\n\r\n".encode())
-                print(f"site {host_address} is blocked")
+                print(f"Site {host_address[0]} is blocked")
                 client_sock.close()
                 continue
 

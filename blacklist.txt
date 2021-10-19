@@ -1,2 +1,4 @@
 google.com
-baidu.com
+nus.edu.sg
+yahoo.com
+youtube.com
