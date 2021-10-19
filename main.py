@@ -20,7 +20,7 @@ time_out = 5
 
 def ClientHandler(client_sock: socket, request_address: (str, int), http_version: str):
     server_sock = socket.create_connection(request_address)
-    # Send SSL Greeting msg to client
+    # Send greeting msg to client
     greeting_binary = f"HTTP/{http_version} 200 Connection established \r\n\r\n".encode()
     client_sock.sendall(greeting_binary)
     traffic_bytes = 0
