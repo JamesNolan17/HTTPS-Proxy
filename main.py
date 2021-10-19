@@ -64,7 +64,7 @@ def main():
     executor = concurrent.futures.ThreadPoolExecutor(max_workers=max_threads)
     # Bind to localhost
     welcome_sock = socket.socket()
-    welcome_sock.bind(("localhost", port))
+    welcome_sock.bind(("", port))
     # Read blacklist info
     if blacklist_file:
         with open(blacklist_file) as file:
